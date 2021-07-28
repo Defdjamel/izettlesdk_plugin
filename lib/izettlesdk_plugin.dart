@@ -83,22 +83,24 @@ class IzettlesdkPlugin {
         await _channel.invokeMethod('openSettings'));
   }
 
-  static Future<IzettlePluginResponse> checkout() async {
+  static Future<IzettlePluginResponse> checkout(
+      IzettlePaymentRequest paymentRequest) async {
     _throwIfNotInitialized();
+    _throwIfNotLoggedIn();
     //await _throwIfNotLoggedIn();
     var rng = new Random();
-    var refUuid = rng.nextInt(100000000);
-    var payment = IzettlePayment(
-      total: 1.2,
-      foreignTransactionId: refUuid.toString(),
-      tip: .0,
-    );
+    // var refUuid = rng.nextInt(100000000);
+    // var payment = IzettlePayment(
+    //   total: 1.2,
+    //   foreignTransactionId: refUuid.toString(),
+    //   tip: .0,
+    // );
 
-    var paymentRequest = IzettlePaymentRequest(payment, info: {
-      'AccountId': 'taxi0334',
-      'From': 'Paris',
-      'To': 'Berlin',
-    });
+    // var paymentRequest = IzettlePaymentRequest(payment, info: {
+    //   'AccountId': 'taxi0334',
+    //   'From': 'Paris',
+    //   'To': 'Berlin',
+    // });
 
     return IzettlePluginResponse.fromMap(
         await _channel.invokeMethod('checkout', paymentRequest.toMap()));

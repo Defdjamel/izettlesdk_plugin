@@ -57,6 +57,8 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
     channel.setMethodCallHandler(this)
     context = flutterPluginBinding.applicationContext
 
+
+
   }
 
 
@@ -64,14 +66,10 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
     Log.d(TAG, "onAttachedToActivity")
     activity = binding.activity
     binding.addActivityResultListener(this)
-
-
   }
-
 
   override fun onDetachedFromActivityForConfigChanges() {
     Log.d(TAG, "onDetachedFromActivityForConfigChanges")
-
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -89,6 +87,8 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
 
 
 
+
+
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     Log.d(TAG, call.method)
     currentOperation = IzettlePluginResponse(result)
@@ -100,7 +100,6 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
       "logout" -> logout(result).flutterResult()
       "isLoggedIn" -> isLoggedIn(result).flutterResult()
       "checkout" -> checkout(call.argument<Map<String, String>>("payment")!!, call.argument<Map<String, String>>("info"))
-
       "openSettings" -> openSettingsSDK(result).flutterResult()
       "getPlatformVersion" -> result.success("Andromerde ${android.os.Build.VERSION.RELEASE}")
 
@@ -208,10 +207,10 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
             .put("testkey","valtest")
             .build()
 
-    Log.d(TAG, reference.toString())
+    Log.d(TAG, info.toString())
 
 
-    //add extra info
+    //a extra info
    val amount = args["total"] as Double;
 
 
@@ -231,31 +230,39 @@ class IzettlesdkPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginR
             .build()
 
 // Start activity with the intent
-   intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    context.startActivity(intent)
+    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    //activity.setResult(REQUEST_CODE_PAYMENT,intent)
+   // context.startActivity(intent)
+    activity.startActivityForResult(intent, REQUEST_CODE_PAYMENT)
 
 
 
 
   }
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-    Log.d(TAG, "onActivityResult - RequestCode: $requestCode - Result Code: $resultCode")
 
+
+      override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+
+    Log.d(TAG, "onActivityResult - RequestCode: $requestCode - Result Code: $resultCode")
 
     if (requestCode == REQUEST_CODE_PAYMENT && data != null) {
       val result: CardPaymentResult? = data.getParcelableExtra(CardPaymentActivity.RESULT_EXTRA_PAYLOAD)
+      var message = ""
       var paymentValid = false
       if (result is CardPaymentResult.Completed) {
         paymentValid = true
         Toast.makeText(context, "Payment completed", Toast.LENGTH_SHORT).show()
+        message = "Payment completed"
       } else if (result is CardPaymentResult.Canceled) {
         Toast.makeText(context, "Payment canceled", Toast.LENGTH_SHORT).show()
+        message = "Payment canceled"
       } else if (result is CardPaymentResult.Failed) {
         Toast.makeText(context, "Payment failed ", Toast.LENGTH_SHORT).show()
+        message = "Payment failed"
       }
-      currentOperation.message = mutableMapOf(
-              "success" to paymentValid
-      )
+
+      currentOperation.status  = paymentValid
+      currentOperation.message = mutableMapOf("message" to message)
       currentOperation.flutterResult()
       return true
     }

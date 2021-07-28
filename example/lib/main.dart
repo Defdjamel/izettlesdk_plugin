@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:izettlesdk_plugin/izettlesdk_plugin.dart';
@@ -23,10 +24,18 @@ class _MyAppState extends State<MyApp> {
     initSDK();
   }
 
+  String getRandomString(int length) {
+    const _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    return String.fromCharCodes(Iterable.generate(
+        length, (_) => _chars.codeUnitAt(Random().nextInt(_chars.length))));
+  }
+
   Future<void> initSDK() async {
     var init = await IzettlesdkPlugin.initSDK(
         "0d12f4bc-837c-41ca-bf7d-e32c11774f72", "monkiosk://izettle");
-    print(init);
+
+    print(init.message);
   }
 
   Future<void> openSettingSDK() async {
@@ -39,8 +48,8 @@ class _MyAppState extends State<MyApp> {
     print(response);
   }
 
-  Future<void> checkOut() async {
-    var response = await IzettlesdkPlugin.checkout();
+  Future<void> checkOut(IzettlePaymentRequest paymentRequest) async {
+    var response = await IzettlesdkPlugin.checkout(paymentRequest);
     print(response);
   }
 
@@ -103,7 +112,16 @@ class _MyAppState extends State<MyApp> {
                   child: Text("openSettingSDK")),
               TextButton(
                   onPressed: () {
-                    checkOut();
+                    var payment = IzettlePayment(
+                      total: 1.0,
+                      foreignTransactionId: this.getRandomString(8),
+                      tip: .0,
+                    );
+
+                    var paymentRequest =
+                        IzettlePaymentRequest(payment, info: {});
+
+                    checkOut(paymentRequest);
                   },
                   child: Text("checkOut")),
               TextButton(

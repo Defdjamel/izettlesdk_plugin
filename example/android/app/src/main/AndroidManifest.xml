@@ -6,7 +6,6 @@
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -33,15 +32,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
 
 
-                <data
-                    android:scheme="monkiosk"
-                    android:host="izettle" />
+
             </intent-filter>
 
         </activity>
 
         <activity
             android:name="com.izettle.android.auth.OAuthActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity="@string/oauth_activity_task_affinity"
             >
             <intent-filter>
                 <data
